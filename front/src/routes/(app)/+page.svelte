@@ -10,6 +10,7 @@
     }
 </script>
 
+<!-- 상단 고정 -->
 <div class="fixed top-10 left-0 w-full z-40">
     <div class="max-w-[530px] mx-auto suit-font px-5 bg-white pb-2">
         <ul class="flex justify-between">
@@ -21,13 +22,15 @@
     </div>
 </div>
 
-<div class="divide-y z-50" style="padding-top: 80px; margin-bottom:50px">
+
+
+<div class="z-50" style="padding-top: 77px; padding-bottom:70px">
     {#each tempArr as temp}
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <!-- svelte-ignore event_directive_deprecated -->
         <div
-            class="flex gap-3 w-full py-1 cursor-pointer"
+            class="flex gap-3 w-full px-3 py-2 cursor-pointer bg-white mb-1.5 rounded-md"
             on:click={goToDetail}
         >
             <div class="w-1/2">

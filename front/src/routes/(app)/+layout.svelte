@@ -25,15 +25,29 @@
         />
     </div>
 </div>
-<div class="bg-green-50 relative">
-    <div class="max-w-[530px] mx-auto suit-font px-3 bg-white">
+<div class="bg-green-50 relative min-h-screen">
+    <div class="max-w-[530px] mx-auto suit-font">
         <slot></slot>
     </div>
 </div>
 <div class="fixed left-0 bottom-0 w-full suit-font z-40">
     <ul
-        class="max-w-[530px] mx-auto flex justify-between w-full gap-3 px-5 z-50 bg-white py-3"
+        class="max-w-[530px] mx-auto flex justify-between w-full gap-3 px-5 z-50 bg-white py-3 relative"
     >
+        {#if $page.url.pathname == "/" || $page.url.pathname == "/interest"}
+            <div class="absolute right-3 top-[-45px]">
+                <button
+                    class="py-1.5 px-4 bg-blue-500 text-white rounded-full"
+                    on:click={() => {
+                        goto("/registjob");
+                    }}
+                >
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                    <span>구인등록</span>
+                </button>
+            </div>
+        {/if}
+
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
