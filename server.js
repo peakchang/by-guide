@@ -3,7 +3,7 @@ import path from 'path';
 import cors from 'cors';
 import dotenv from 'dotenv';
 const app = express();
-import { sql_con } from './back-lib/db.js'
+// import { sql_con } from './back-lib/db.js'
 import cookieParser from "cookie-parser"
 
 dotenv.config();
