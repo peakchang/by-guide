@@ -5,6 +5,18 @@
     let daehang = $state("");
     let testifif = $state("");
 
+    let locationList = $derived([
+        "서울",
+        "경기북부",
+        "경기남부",
+        "인천",
+        "충청",
+        "전라",
+        "강원도",
+        "경상도",
+        "제주도",
+    ]);
+
     let businessCategorys = $derived([
         "아파트",
         "오피스텔",
@@ -23,7 +35,7 @@
     ]);
 
     let jobCategorys = $derived([
-        "시행/대행사무직",
+        "시행/대행 사무직",
         "분양대행사",
         "본부장",
         "팀장",
@@ -36,6 +48,7 @@
     let feeBases = $derived(["본부", "팀", "직원", "상담시"]);
 
     let SelFeeBase = $state("");
+    let selLocation = $state("");
 </script>
 
 <!-- 숨겨진 헤더!!!!!!!!!!!!!!!!!!!!!! -->
@@ -116,13 +129,30 @@
                         지도 표시 영역
                     </div>
                 </div>
+
+                <div class="mt-5">
+                    <div class="mt-3 font-semibold text-lg">지역선택</div>
+                    <div class="mt-3 grid grid-cols-2 gap-1">
+                        {#each locationList as location, idx}
+                            <label class="button-checkbox">
+                                <input
+                                    type="radio"
+                                    hidden
+                                    value={location}
+                                    bind:group={selLocation}
+                                />
+                                <div>{location}</div>
+                            </label>
+                        {/each}
+                    </div>
+                </div>
             </div>
 
             <div class="mt-2 bg-white p-5">
                 <div class="font-semibold text-lg">기본정보</div>
 
                 <QuestionItem
-                    sbj="대행사 *"
+                    sbj="분양대행사 *"
                     placeholder="필수입력"
                     bind:iptVal={daehang}
                 />
@@ -135,7 +165,10 @@
                 <QuestionItem sbj="담당자 연락처 *" placeholder="필수입력" />
 
                 <div class="mt-5">
-                    <div class="w-1/5 text-center text-sm">업종분류 *</div>
+                    <div class="pl-3 text-left text-sm">
+                        <span>업종분류 *</span>
+                        <span class="text-xs">(여러개 선택 가능)</span>
+                    </div>
                     <div class="mt-3 grid grid-cols-2 gap-1">
                         {#each businessCategorys as businessCategory, idx}
                             <label class="button-checkbox">
@@ -147,7 +180,10 @@
                 </div>
 
                 <div class="mt-5">
-                    <div class="w-1/5 text-center text-sm">직종분류 *</div>
+                    <div class="pl-3 text-left text-sm">
+                        <span>직종분류 *</span>
+                        <span class="text-xs">(여러개 선택 가능)</span>
+                    </div>
                     <div class="mt-3 grid grid-cols-2 gap-1">
                         {#each jobCategorys as jobCategory, idx}
                             <label class="button-checkbox">
@@ -158,9 +194,9 @@
                     </div>
                 </div>
 
-                <QuestionItem sbj="경력 *" placeholder="필수입력" />
+                <QuestionItem sbj="경력 *" placeholder="ex) 10년 / 초보" />
 
-                <QuestionItem sbj="인원 *" placeholder="필수입력" />
+                <QuestionItem sbj="인원 *" placeholder="ex) 2명 / 00명" />
             </div>
 
             <div class="mt-2 bg-white p-5">
@@ -183,6 +219,7 @@
                             {/each}
                         </div>
                     </div>
+                    
 
                     <div class="flex justify-end items-center gap-3 mt-2">
                         <div class="w-4/5 flex items-center gap-3">
@@ -193,6 +230,11 @@
                             />
                             <div>원</div>
                         </div>
+                    </div>
+
+                    <div class="text-xs text-right mt-1 text-green-700">
+                        <p>수수료는 구인글 메인에 노출됩니다. 정확하게 입력해주시면</p>
+                        <p>더 많은 사람들이 회원님의 공고를 확인하게 됩니다.</p>
                     </div>
                 </div>
                 <QuestionItem

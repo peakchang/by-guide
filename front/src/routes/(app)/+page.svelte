@@ -12,7 +12,7 @@
 
 <!-- 상단 고정 -->
 <div class="fixed top-10 left-0 w-full z-40">
-    <div class="max-w-[530px] mx-auto suit-font px-5 bg-white pb-2">
+    <div class="max-w-[530px] mx-auto suit-font bg-white p-3">
         <ul class="flex justify-between">
             <li class="font-bold text-green-600 cursor-pointer">전국</li>
             <li class="cursor-pointer">서울/경기/인천</li>
@@ -24,7 +24,7 @@
 
 
 
-<div class="z-50" style="padding-top: 77px; padding-bottom:70px">
+<div class="z-50" style="padding-top: 95px; padding-bottom:70px">
     {#each tempArr as temp}
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_static_element_interactions -->

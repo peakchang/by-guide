@@ -52,7 +52,7 @@
             <div
                 class="flex gap-2 items-center cursor-pointer"
                 on:click={() => {
-                    goto("menage_job");
+                    goto("/manage_job");
                 }}
             >
                 <div
