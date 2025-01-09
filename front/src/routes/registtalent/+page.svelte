@@ -5,6 +5,18 @@
     let daehang = $state("");
     let testifif = $state("");
 
+    let locationList = $derived([
+        "서울",
+        "경기북부",
+        "경기남부",
+        "인천",
+        "충청",
+        "전라",
+        "강원도",
+        "경상도",
+        "제주도",
+    ]);
+
     let businessCategorys = $derived([
         "아파트",
         "오피스텔",
@@ -32,6 +44,8 @@
         "TM상담사",
         "알바",
     ]);
+
+    let sexList = $derived(["남자", "여자", "비공개"]);
 
     let feeBases = $derived(["본부", "팀", "직원", "상담시"]);
 
@@ -73,12 +87,12 @@
 <div class="bg-green-50 relative min-h-screen">
     <div class="max-w-[530px] mx-auto suit-font pt-12 pb-24">
         <div class="text-center font-semibold text-xl bg-white p-3">
-            구인글 등록
+            내 인재정보
         </div>
 
         <form action="">
             <div class="mt-2 bg-white p-5">
-                <div class="font-semibold text-lg">공고제목 (현장명)</div>
+                <div class="font-semibold text-lg">제목</div>
                 <div class="mt-1.5">
                     <input
                         type="text"
@@ -87,55 +101,66 @@
                     />
                 </div>
 
-                <div class="mt-3 font-semibold text-lg">현장 포인트</div>
-                <div class="mt-1.5">
-                    <textarea
-                        class="textarea textarea-info w-full p-2"
-                        placeholder="Bio"
-                    ></textarea>
-                </div>
-
-                <div class="mt-3 font-semibold text-lg">근무지</div>
-                <div class="mt-1.5 flex w-full items-center gap-1">
-                    <div
-                        class="border w-full py-1.5 px-2 text-sm border-sky-400 rounded-md"
-                    >
-                        근무지 주소를 입력하세요
-                    </div>
-                    <button class="btn btn-outline btn-info btn-sm">
-                        <span>주소 입력</span>
-                    </button>
-                </div>
-
-                <div
-                    class="mt-2 h-40 border w-full text-sm border-sky-400 rounded-md overflow-hidden"
-                >
-                    <div
-                        class=" bg-gray-300 w-full h-full flex justify-center items-center text-2xl"
-                    >
-                        지도 표시 영역
+                <div class="flex w-full items-center mt-5">
+                    <div class="w-1/5 text-center text-sm">성별 *</div>
+                    <div class="w-4/5 flex gap-1">
+                        {#each sexList as sex}
+                            <label class="button-checkbox w-full">
+                                <input
+                                    type="radio"
+                                    value={sex}
+                                    hidden
+                                    bind:group={SelFeeBase}
+                                />
+                                <div class="">{sex}</div>
+                            </label>
+                        {/each}
                     </div>
                 </div>
-            </div>
-
-            <div class="mt-2 bg-white p-5">
-                <div class="font-semibold text-lg">기본정보</div>
 
                 <QuestionItem
-                    sbj="대행사 *"
+                    sbj="연령 *"
                     placeholder="필수입력"
                     bind:iptVal={daehang}
                 />
-                <QuestionItem
-                    sbj="담당자 성함 *"
-                    placeholder="필수입력"
-                    bind:iptVal={testifif}
-                />
 
-                <QuestionItem sbj="담당자 연락처 *" placeholder="필수입력" />
+                <div class="mt-5 flex w-full items-center">
+                    <div class="w-1/5 text-center text-sm">휴대전화 *</div>
+                    <div class="w-4/5 flex gap-1">
+                        <input
+                            type="text"
+                            placeholder="번호 입력 후 인증을 완료 해주세요"
+                            class="input input-bordered input-info input-sm w-full"
+                        />
+                        <button class="btn btn-outline btn-info btn-sm"
+                            >인증</button
+                        >
+                    </div>
+                </div>
+                <div class="mt-1 text-right text-xs">
+                    인증이 완료 되었습니다.
+                </div>
 
                 <div class="mt-5">
-                    <div class="w-1/5 text-center text-sm">업종분류 *</div>
+                    <div class="pl-3 text-left text-sm">
+                        <span>희망지역 *</span>
+                        <span class="text-xs">(여러개 선택 가능)</span>
+                    </div>
+                    <div class="mt-3 grid grid-cols-2 gap-1">
+                        {#each locationList as location, idx}
+                            <label class="button-checkbox">
+                                <input type="checkbox" hidden />
+                                <div>{location}</div>
+                            </label>
+                        {/each}
+                    </div>
+                </div>
+
+                <div class="mt-5">
+                    <div class="pl-3 text-left text-sm">
+                        <span>희망업종 *</span>
+                        <span class="text-xs">(여러개 선택 가능)</span>
+                    </div>
                     <div class="mt-3 grid grid-cols-2 gap-1">
                         {#each businessCategorys as businessCategory, idx}
                             <label class="button-checkbox">
@@ -147,7 +172,10 @@
                 </div>
 
                 <div class="mt-5">
-                    <div class="w-1/5 text-center text-sm">직종분류 *</div>
+                    <div class="pl-3 text-left text-sm">
+                        <span>희망직종 *</span>
+                        <span class="text-xs">(여러개 선택 가능)</span>
+                    </div>
                     <div class="mt-3 grid grid-cols-2 gap-1">
                         {#each jobCategorys as jobCategory, idx}
                             <label class="button-checkbox">
@@ -158,74 +186,24 @@
                     </div>
                 </div>
 
-                <QuestionItem sbj="경력 *" placeholder="필수입력" />
-
-                <QuestionItem sbj="인원 *" placeholder="필수입력" />
-            </div>
-
-            <div class="mt-2 bg-white p-5">
-                <div class="font-semibold text-lg">급여 및 영업지원</div>
-
-                <div class="mt-2">
-                    <div class="flex w-full items-center">
-                        <div class="w-1/5 text-center text-sm">수수료 *</div>
-                        <div class="w-4/5 flex gap-1">
-                            {#each feeBases as feeBase}
-                                <label class="button-checkbox w-full">
-                                    <input
-                                        type="radio"
-                                        value={feeBase}
-                                        hidden
-                                        bind:group={SelFeeBase}
-                                    />
-                                    <div class="">{feeBase}</div>
-                                </label>
-                            {/each}
-                        </div>
-                    </div>
-
-                    <div class="flex justify-end items-center gap-3 mt-2">
-                        <div class="w-4/5 flex items-center gap-3">
-                            <input
-                                type="text"
-                                placeholder="숫자만 입력해주세요"
-                                class="input input-bordered input-info input-sm w-full"
-                            />
-                            <div>원</div>
-                        </div>
-                    </div>
-                </div>
                 <QuestionItem
-                    sbj="일비"
-                    placeholder="있을 경우만 입력 (ex, 월 100만원 / 일 3만원)"
+                    sbj="경력기간"
+                    placeholder="미입력시 초보로 표기"
+                    bind:iptVal={daehang}
                 />
 
-                <QuestionItem
-                    sbj="숙소비"
-                    placeholder="있을 경우만 입력 (ex, 원룸 제공)"
-                />
-
-                <QuestionItem
-                    sbj="프로모션"
-                    placeholder="있을 경우만 입력 (ex, 5채 판매시 추가 100만)"
-                />
-
-                <QuestionItem
-                    sbj="기본급여"
-                    placeholder="있을 경우만 입력 (ex, 5채 판매시 추가 100만)"
-                />
-            </div>
-
-            <div class="mt-2 bg-white p-5">
-                <div class="font-semibold text-lg">상세내용</div>
+                <div class="mt-3 font-semibold text-lg">경력 및 기타 소개</div>
                 <div class="mt-1.5">
                     <textarea
                         class="textarea textarea-info w-full p-2"
-                        placeholder="Bio"
                         rows="5"
+                        placeholder="Bio"
                     ></textarea>
                 </div>
 
+                
+
+            <div class="mt-2 bg-white p-5">
                 <div class="mt-1.5">
                     <button class="btn btn-success w-full text-white"
                         >등록하기</button
