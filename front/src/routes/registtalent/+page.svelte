@@ -52,7 +52,6 @@
     let SelFeeBase = $state("");
 </script>
 
-<!-- 숨겨진 헤더!!!!!!!!!!!!!!!!!!!!!! -->
 <div class="fixed top-0 left-0 w-full bg-green-50 z-50 suit-font">
     <div class="max-w-[530px] mx-auto bg-white border-b">
         <div class="px-3 py-1 flex justify-between items-center">
@@ -91,6 +90,28 @@
         </div>
 
         <form action="">
+            <div class="mt-2 bg-white p-3">
+                <div class="text-center mb-1">
+                    프로필 이미지
+                </div>
+                <div class="w-20 h-20 relative mx-auto text-center">
+                    <!-- svelte-ignore a11y_consider_explicit_label -->
+                    <button
+                        class="absolute bottom-[-10px] right-[-10px] w-7 h-7 border-2 rounded-full bg-white text-xs text-gray-500"
+                    >
+                        <i class="fa fa-camera" aria-hidden="true"></i>
+                    </button>
+                    <div
+                        class="border-2 border-gray-300 rounded-xl overflow-hidden"
+                    >
+                        <img src="/profile-base.png" alt="" />
+                    </div>
+
+                    
+                </div>
+                
+            </div>
+
             <div class="mt-2 bg-white p-5">
                 <div class="font-semibold text-lg">제목</div>
                 <div class="mt-1.5">
@@ -201,13 +222,12 @@
                     ></textarea>
                 </div>
 
-                
-
-            <div class="mt-2 bg-white p-5">
-                <div class="mt-1.5">
-                    <button class="btn btn-success w-full text-white"
-                        >등록하기</button
-                    >
+                <div class="mt-2 bg-white p-5">
+                    <div class="mt-1.5">
+                        <button class="btn btn-success w-full text-white"
+                            >등록하기</button
+                        >
+                    </div>
                 </div>
             </div>
         </form>
