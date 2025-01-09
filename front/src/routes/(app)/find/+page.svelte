@@ -16,7 +16,10 @@
             </div>
 
             <div class="flex flex-col min-w-0">
-                <span class="text-sm">경기도 / 남자</span>
+                <span class="text-sm">경기도 | 남자 |
+                    <i class="fa fa-clock-o" aria-hidden="true"></i>
+                    2025 / 01 / 09
+                </span>
                 <span
                     class="w-full block overflow-hidden text-ellipsis whitespace-nowrap"
                     >Lorem ipsum dolor sit amet consectetur adipisicing elit. Ut
@@ -25,10 +28,7 @@
                     ab expedita vel maiores sapiente?</span
                 >
                 <span class="text-sm">
-                    <i class="fa fa-clock-o" aria-hidden="true"></i>
-                    2025 / 01 / 09 |
-                    <i class="fa fa-eye" aria-hidden="true"></i>
-                    591
+                    #상담사 #4년 #28살
                 </span>
             </div>
         </div>
