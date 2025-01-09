@@ -16,7 +16,7 @@ import { apiRouter } from "./routes/api.js"
 
 // import { apiRouter } from "./routes/exapi.js"
 app.use(cookieParser());
-app.set('port', process.env.PORT || 3075);
+app.set('port', process.env.PORT || 3060);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // ESM 오류 해결을 위해 __dirname, __filename 직접 변수 작성
