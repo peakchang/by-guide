@@ -79,4 +79,9 @@
     :global(.in-td) {
         border: 1px solid #cfcfcf;
     }
+
+    @import url("/pretendard/pretendard.css");
+    :global(.pretendard) {
+        font-family: "Pretendard", sans-serif;
+    }
 </style>

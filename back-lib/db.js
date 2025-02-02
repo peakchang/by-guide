@@ -15,24 +15,23 @@ export const sql_con = mysql.createConnection({
 
 CREATE DATABASE byguide default CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS board(
+CREATE TABLE IF NOT EXISTS users(
     idx INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    id VARCHAR(50) UNIQUE NOT NULL,
+    id VARCHAR(50) UNIQUE,
+    sns_id VARCHAR(50) UNIQUE,
     password VARCHAR(150),
     phone VARCHAR(50) UNIQUE NOT NULL,
     name VARCHAR(50),
     nickname VARCHAR(50) UNIQUE,
     rate VARCHAR(5) DEFAULT 1,
+    profile_image VARCHAR(255),
+    profile_thumbnail VARCHAR(255),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    connected_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     refresh_token TEXT
-
 );
 
-
-ALTER TABLE users ADD COLUMN refresh_token TEXT DEFAULT NULL;
-ALTER TABLE hy_site MODIFY COLUMN hy_main_image VARCHAR(255);
-ALTER TABLE hy_site MODIFY COLUMN hy_card_image VARCHAR(255);
 
 
 */

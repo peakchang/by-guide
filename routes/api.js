@@ -3,6 +3,8 @@ import multer from "multer";
 import moment from "moment-timezone";
 import fs from "fs";
 import path from "path";
+import axios from "axios";
+import qs from "qs";
 
 const apiRouter = express.Router();
 
@@ -20,13 +22,39 @@ apiRouter.get('/', (req, res) => {
 })
 
 
+apiRouter.post('/send-sms', async (req, res) => {
+    const { phone, message } = req.body;
+
+    try {
+        const response = await axios.post(
+            'https://apis.aligo.in/send/',
+            qs.stringify({
+                key: process.env.ALIGO_API_KEY, // Aligo API Key
+                user_id: process.env.ALIGO_USER_ID, // Aligo 계정 아이디
+                sender: process.env.ALIGO_SENDER, // 발신번호 (사전 등록 필요)
+                receiver: phone, // 수신자 번호 (예: 01012345678)
+                msg: message, // 문자 내용
+                testmode_yn: 'N', // 테스트 모드 ('Y'이면 테스트, 'N'이면 실제 발송)
+            }),
+            {
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            }
+        );
+
+        res.json({ success: true, data: response.data });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+})
+
 
 apiRouter.post('/delete_sort_img', async (req, res, next) => {
     console.log('들어는 오는거야?!?!?');
-    
+
     const body = req.body;
     console.log(body);
-    
+
     const delPath = `public/uploads/image/${body.getFolder}/${body.getImgName}`
 
     console.log(delPath);
