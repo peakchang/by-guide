@@ -9,8 +9,8 @@ export async function POST({ request, cookies }) {
     let status = true;
 
     try {
-        const idCheckQuery = "SELECT * FROM users WHERE id = ?";
-        const [idCheckRows] = await sql_con.promise().query(idCheckQuery, [body.id]);
+        const idCheckQuery = `SELECT * FROM users WHERE ${body.type} = ?`;
+        const [idCheckRows] = await sql_con.promise().query(idCheckQuery, [body.value]);
         if (idCheckRows.length > 0) {
             status = false;
         }

@@ -6,10 +6,17 @@
     import axios from "axios";
 
     let id = $state("");
+    let idErrBool = $state(false); // 아이디 창 벗어났을때 에러 창 뜨게 하는 변수
+    let idSuccessBool = $state(false); // 아이디 창 벗어났을때 성공 창 뜨게 하는 변수
+
     let name = $state("");
+
+    let nickname = $state("");
+    let nicknameSuccessBool = $state(false); // 아이디 창 벗어났을때 성공 창 뜨게 하는 변수
+    let nicknameErrBool = $state(false); // 아이디 창 벗어났을때 에러 창 뜨게 하는 변수
+
     let phone = $state("");
-    let idSuccessBool = $state(false);
-    let idErrBool = $state(false); // 아이디 창을 벗어났을때 중복된 아이디가 없는지 체크
+
     let authNumber = $state(""); // 발송되는 인증번호
 
     let authNumChk = $state(""); // 실제 입력되는 인증번호
@@ -23,25 +30,75 @@
     let pwdErrShowBool = $state(false); // 비밀번호가 일치하지 않을시 에러 창 뜨게!
     let pwdSuccessShowBool = $state(false); // 비밀번호가 일치하면 정상 창 뜨게!
 
-    async function id_duplicate_chk() {
-        if (id) {
-            try {
-                const res = await axios.post(`/auth/join/id_duplicate_chk`, {
-                    id,
-                });
-                if (res.status == 200) {
-                    if (res.data.status == false) {
-                        idErrBool = true;
-                        idSuccessBool = false;
+    async function duplicate_chk(e) {
+        const type = e.target.getAttribute("data-type");
+        if (type == "id") {
+            if (id) {
+                try {
+                    const res = await axios.post(`/auth/duplicate_chk`, {
+                        type,
+                        value: id,
+                    });
+                    if (res.status == 200) {
+                        if (res.data.status == false) {
+                            idErrBool = true;
+                            idSuccessBool = false;
+                        } else {
+                            idErrBool = false;
+                            idSuccessBool = true;
+                        }
                     } else {
-                        idErrBool = false;
-                        idSuccessBool = true;
+                        alert("에러발생! 다시 시도해주세요!");
+                        id = "";
                     }
-                } else {
-                    alert("에러발생! 다시 시도해주세요!");
-                    id = "";
-                }
-            } catch (error) {}
+                } catch (error) {}
+            }
+        } else if (type == "nickname") {
+            if (nickname) {
+                try {
+                    const res = await axios.post(`/auth/duplicate_chk`, {
+                        type,
+                        value: nickname,
+                    });
+                    if (res.status == 200) {
+                        if (res.data.status == false) {
+                            nicknameErrBool = true;
+                            nicknameSuccessBool = false;
+                        } else {
+                            nicknameErrBool = false;
+                            nicknameSuccessBool = true;
+                        }
+                    } else {
+                        alert("에러발생! 다시 시도해주세요!");
+                        nickname = "";
+                    }
+                } catch (error) {}
+            }
+        } else {
+            if (phone) {
+                try {
+                    const res = await axios.post(`/auth/duplicate_chk`, {
+                        type,
+                        value: phone,
+                    });
+                    if (res.status == 200) {
+                        if (res.data.status == false) {
+                            alert(
+                                "중복된 번호가 있습니다. 전화번호를 확인해주세요",
+                            );
+                            return false;
+                        } else {
+                            return true;
+                        }
+                    } else {
+                        alert("에러발생! 다시 시도해주세요!");
+                        nickname = "";
+                    }
+                } catch (error) {}
+            } else {
+                alert("전화번호를 입력해주세요");
+                return false;
+            }
         }
     }
 
@@ -84,6 +141,9 @@
             interval = null;
             authShowBool = false;
             authBool = true;
+        } else {
+            alert("인증증번호가 일치하지 않습니다.");
+            return false;
         }
     }
 
@@ -115,6 +175,15 @@
             alert("이름을 입력하세요");
             return;
         }
+
+        if (nicknameErrBool == true) {
+            alert("중복된 닉네임 입니다.");
+            return;
+        }
+        if (!nickname) {
+            alert("닉네임을 입력하세요");
+            return;
+        }
         if (!phone) {
             alert("전화번호를 입력하세요");
             return;
@@ -136,6 +205,7 @@
             const res = await axios.post("/auth/join", {
                 id,
                 name,
+                nickname,
                 phone,
                 password,
             });
@@ -151,9 +221,14 @@
 </script>
 
 <div class="bg-green-50 relative min-h-screen">
-    <div class="max-w-[530px] mx-auto suit-font pt-12 pb-10 bg-white p-14">
+    <div
+        class="max-w-[530px] mx-auto suit-font pt-12 pb-10 bg-white p-14 min-h-screen"
+    >
         <div class="text-center bg-white">
-            <img src="/logo.png" alt="" class=" max-w-[150px] mx-auto" />
+            <a href="/">
+                <img src="/logo.png" alt="" class=" max-w-[150px] mx-auto" />
+            </a>
+
             <div>회원가입</div>
         </div>
 
@@ -173,12 +248,13 @@
                         type="text"
                         class="grow"
                         placeholder="아이디를 입력하세요"
+                        data-type="id"
                         bind:value={id}
                         on:focusin={() => {
                             idErrBool = false;
                             idSuccessBool = false;
                         }}
-                        on:focusout={id_duplicate_chk}
+                        on:focusout={duplicate_chk}
                     />
                 </label>
                 {#if idErrBool == true}
@@ -200,10 +276,44 @@
                     <input
                         type="text"
                         class="grow"
-                        placeholder="이름을 입력하세요"
+                        placeholder="이름(실명)을 입력하세요"
                         bind:value={name}
                     />
                 </label>
+
+                <label
+                    class="input input-bordered flex items-center gap-2 text-sm mt-5"
+                >
+                    <span class="min-w-4 flex justify-center">
+                        <i
+                            class="fa fa-user-circle opacity-70"
+                            aria-hidden="true"
+                        ></i>
+                    </span>
+
+                    <!-- svelte-ignore event_directive_deprecated -->
+                    <input
+                        type="text"
+                        class="grow"
+                        placeholder="활동하실 닉네임을 입력하세요"
+                        data-type="nickname"
+                        bind:value={nickname}
+                        on:focusin={() => {
+                            nicknameErrBool = false;
+                            nicknameSuccessBool = false;
+                        }}
+                        on:focusout={duplicate_chk}
+                    />
+                </label>
+                {#if nicknameErrBool == true}
+                    <div class="text-right text-xs text-red-500 mt-1">
+                        닉네임이 중복됩니다. 다시 입력해주세요.
+                    </div>
+                {:else if nicknameSuccessBool == true}
+                    <div class="text-right text-xs text-green-600 mt-1">
+                        사용 가능한 닉네임 입니다.
+                    </div>
+                {/if}
 
                 <div class="flex items-center mt-5 gap-2">
                     <label
@@ -228,9 +338,17 @@
 
                     <button
                         type="button"
+                        data-type="phone"
                         class="btn btn-success text-white"
                         disabled={authShowBool || authBool}
-                        on:click={startAuth}
+                        on:click={async (e) => {
+                            const phoneBool = await duplicate_chk(e);
+                            console.log(phoneBool);
+
+                            if (phoneBool) {
+                                startAuth();
+                            }
+                        }}
                     >
                         인증받기
                     </button>

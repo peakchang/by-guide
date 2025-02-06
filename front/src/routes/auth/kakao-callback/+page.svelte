@@ -8,13 +8,18 @@
     import { formatTime, generateRandomNumber } from "$src/lib/lib";
 
     let { data } = $props();
+    console.log(data);
 
     let userInfo = $state({});
     userInfo = data.userInfo;
 
     // 필수 정보 변수!
     let name = $state("");
+
     let nickname = $state("");
+    let nicknameSuccessBool = $state(false); // 아이디 창 벗어났을때 성공 창 뜨게 하는 변수
+    let nicknameErrBool = $state(false); // 아이디 창 벗어났을때 에러 창 뜨게 하는 변수
+
     let phone = $state("");
 
     let authNumber = $state(""); // 발송되는 인증번호
@@ -37,6 +42,12 @@
     */
 
     $effect(() => {
+        console.log(data);
+
+        if (data.loginStatus == undefined) {
+            alert("오류입니다. 다시 시도해주세요");
+            goto("/auth/login");
+        }
         // 빈 객체가 아닐경우 유저 정보가 있으므로 store user_info 에 정보 넣고 메인 페이지로 이동!
         if (data.loginStatus == true) {
             $user_info = data;
@@ -49,7 +60,7 @@
     });
 
     async function startAuth() {
-        if (!userInfo.phone) {
+        if (!phone) {
             alert("전화번호를 입력해주세요");
             return;
         }
@@ -103,19 +114,21 @@
             interval = null;
             authShowBool = false;
             authBool = true;
+        } else {
+            alert("인증번호가 맞지 않습니다. 다시 시도해주세요");
+            return;
         }
     }
 
-    function snsloginSubmit(e) {
+    async function snsloginSubmit(e) {
         e.preventDefault();
-        console.log(userInfo);
 
-        if (!data.loginStatus && !userInfo.name) {
+        if (!data.loginStatus && !userInfo.name && !name) {
             alert("이름을 입력하세요.");
             return;
         }
 
-        if (!data.loginStatus && !userInfo.phone) {
+        if (!data.loginStatus && !userInfo.phone && !phone) {
             alert("휴대폰 번호를 입력하세요.");
             return;
         }
@@ -123,6 +136,74 @@
         if (!authBool) {
             alert("휴대폰 인증을 완료해주세요");
             return;
+        }
+
+        if (!data.loginStatus && !userInfo.nickname && !nickname) {
+            alert("닉네임을 입력하세요.");
+            return;
+        }
+        userInfo.name = name;
+        userInfo.phone = phone;
+        userInfo.nickname = nickname;
+        console.log(userInfo);
+
+        try {
+            const res = await axios.post("/auth/kakao-callback", { userInfo });
+            if (res.status == 200) {
+                alert("로그인 성공!");
+                location.href = "/";
+            }
+        } catch (error) {}
+    }
+
+    async function duplicate_chk(e) {
+        const type = e.target.getAttribute("data-type");
+        if (type == "nickname") {
+            if (nickname) {
+                try {
+                    const res = await axios.post(`/auth/duplicate_chk`, {
+                        type,
+                        value: nickname,
+                    });
+                    if (res.status == 200) {
+                        if (res.data.status == false) {
+                            nicknameErrBool = true;
+                            nicknameSuccessBool = false;
+                        } else {
+                            nicknameErrBool = false;
+                            nicknameSuccessBool = true;
+                        }
+                    } else {
+                        alert("에러발생! 다시 시도해주세요!");
+                        nickname = "";
+                    }
+                } catch (error) {}
+            }
+        } else {
+            if (phone) {
+                try {
+                    const res = await axios.post(`/auth/duplicate_chk`, {
+                        type,
+                        value: phone,
+                    });
+                    if (res.status == 200) {
+                        if (res.data.status == false) {
+                            alert(
+                                "중복된 번호가 있습니다. 전화번호를 확인해주세요",
+                            );
+                            return false;
+                        } else {
+                            return true;
+                        }
+                    } else {
+                        alert("에러발생! 다시 시도해주세요!");
+                        nickname = "";
+                    }
+                } catch (error) {}
+            } else {
+                alert("전화번호를 입력해주세요");
+                return false;
+            }
         }
     }
 </script>
@@ -148,9 +229,46 @@
                             type="text"
                             class="grow"
                             placeholder="이름을 입력하세요"
-                            bind:value={userInfo["name"]}
+                            bind:value={name}
                         />
                     </label>
+                {/if}
+
+                {#if !userInfo.nickname & !data.loginStatus}
+                    <label
+                        class="input input-bordered flex items-center gap-2 text-sm mt-5"
+                    >
+                        <span class="min-w-4 flex justify-center">
+                            <i
+                                class="fa fa-user-circle opacity-70"
+                                aria-hidden="true"
+                            ></i>
+                        </span>
+
+                        <!-- svelte-ignore event_directive_deprecated -->
+                        <input
+                            type="text"
+                            class="grow"
+                            placeholder="활동하실 닉네임을 입력하세요"
+                            data-type="nickname"
+                            bind:value={nickname}
+                            on:focusin={() => {
+                                nicknameErrBool = false;
+                                nicknameSuccessBool = false;
+                            }}
+                            on:focusout={duplicate_chk}
+                        />
+                    </label>
+                {/if}
+
+                {#if nicknameErrBool == true}
+                    <div class="text-right text-xs text-red-500 mt-1">
+                        닉네임이 중복됩니다. 다시 입력해주세요.
+                    </div>
+                {:else if nicknameSuccessBool == true}
+                    <div class="text-right text-xs text-green-600 mt-1">
+                        사용 가능한 닉네임 입니다.
+                    </div>
                 {/if}
 
                 {#if !userInfo.phone & !data.loginStatus}
@@ -170,16 +288,27 @@
                                 class="grow"
                                 placeholder="휴대폰 번호를 입력하세요"
                                 disabled={authShowBool || authBool}
-                                bind:value={userInfo["phone"]}
+                                on:input={() => {
+                                    console.log(phone);
+                                }}
+                                bind:value={phone}
                             />
                             <!-- disabled -->
                         </label>
 
                         <button
                             type="button"
+                            data-type="phone"
                             class="btn btn-success text-white"
                             disabled={authShowBool || authBool}
-                            on:click={startAuth}
+                            on:click={async (e) => {
+                                const phoneBool = await duplicate_chk(e);
+                                console.log(phoneBool);
+
+                                if (phoneBool) {
+                                    startAuth();
+                                }
+                            }}
                         >
                             인증받기
                         </button>

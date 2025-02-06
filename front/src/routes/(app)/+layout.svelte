@@ -1,10 +1,9 @@
 <script>
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
-    console.log($page);
 
     function movePage(e) {
-        console.log(this.getAttribute("linkdata"));
+        // console.log(this.getAttribute("linkdata"));
         if ($page.url.pathname != this.getAttribute("linkdata")) {
             goto(this.getAttribute("linkdata"));
         }
@@ -12,17 +11,20 @@
 </script>
 
 <div class="fixed left-0 top-0 w-full suit-font z-40 h-10">
-    <div class="max-w-[530px] mx-auto bg-white px-3 py-2">
+    <div class="max-w-[530px] mx-auto bg-white px-3 py-2 flex justify-between">
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-        <img
-            src="/logo.png"
-            alt=""
-            class=" max-w-[110px] cursor-pointer"
-            on:click={() => {
-                goto("/");
-            }}
-        />
+
+        <a href="/">
+            <img src="/logo.png" alt="" class=" max-w-[110px] cursor-pointer" />
+        </a>
+
+        <a href="/auth/login">
+            <button class="btn btn-outline btn-success btn-xs">
+                <i class="fa fa-user-circle" aria-hidden="true"></i>
+                <span>로그인</span>
+            </button>
+        </a>
     </div>
 </div>
 <div class="bg-green-50 relative min-h-screen">

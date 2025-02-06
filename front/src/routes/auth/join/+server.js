@@ -15,13 +15,9 @@ export async function POST({ request, cookies }) {
     try {
         const testQuery = `INSERT INTO users (${queryStr.str}) VALUES (${queryStr.question})`;
         const [testData] = await sql_con.promise().query(testQuery, queryStr.values);
-        console.log(testData);
     } catch (error) {
         console.error(error.message);
     }
-
-    console.log(cookies);
-    cookies.set('visited', 'true', { path: '/' });
 
     return json({ testData: 'testData', gogoData: 'gogoData' })
 }

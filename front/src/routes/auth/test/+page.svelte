@@ -1,4 +1,7 @@
 <script>
+    
+    console.log(import.meta.env.VITE_KAKAO_RESTAPI);
+    
     const kakao_login = () => {
         const kakaoInfo = {
             // kakao_restapi: "e6c8c90ba06c8dcbe1825e0785679d30",
