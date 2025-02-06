@@ -1,13 +1,31 @@
 <script>
     import { goto } from "$app/navigation";
     import { back_api } from "$src/lib/const";
-    import { formatTime, generateRandomNumber } from "$src/lib/lib";
+    import {
+        formatTime,
+        generateRandomNumber,
+        isAlphanumeric,
+        removeSpecialCharactersAndSpaces,
+    } from "$src/lib/lib";
+    import { user_info } from "$lib/store.js";
     import QuestionItem from "$src/lib/components/QuestionItem.svelte";
     import axios from "axios";
+
+    $effect(() => {
+        loginedChecked();
+    });
+
+    function loginedChecked() {
+        if ($user_info.idx) {
+            alert('이미 로그인 되어 있습니다.')
+            location.href = "/";
+        }
+    }
 
     let id = $state("");
     let idErrBool = $state(false); // 아이디 창 벗어났을때 에러 창 뜨게 하는 변수
     let idSuccessBool = $state(false); // 아이디 창 벗어났을때 성공 창 뜨게 하는 변수
+    let idStatusErrBool = $state(false); // 아이디 형태가 이상할때 보여지는 변수
 
     let name = $state("");
 
@@ -33,6 +51,14 @@
     async function duplicate_chk(e) {
         const type = e.target.getAttribute("data-type");
         if (type == "id") {
+            const idChk = isAlphanumeric(id);
+            if (!idChk) {
+                idStatusErrBool = true;
+            } else {
+                idStatusErrBool = false;
+            }
+            console.log(idChk);
+
             if (id) {
                 try {
                     const res = await axios.post(`/auth/duplicate_chk`, {
@@ -111,25 +137,42 @@
         authNumber = generateRandomNumber();
 
         try {
-            const res = await axios.post(`${back_api}/send-sms`, {
-                phone,
-                message: `분양가이드 인증번호 ${authNumber}`,
-            });
-            if (res.status == 200) {
-                if (!interval) {
-                    interval = setInterval(() => {
-                        if (timeLeft > 0) {
-                            timeLeft -= 1;
-                        } else {
-                            authNumber = "";
-                            authShowBool = false;
-                            clearInterval(interval);
-                            interval = null;
-                            timeLeft = 180;
-                            alert("시간이 만료 되었습니다. 다시 시도해주세요.");
-                        }
-                    }, 1000);
-                }
+            console.log(authNumber);
+
+            // const res = await axios.post(`${back_api}/send-sms`, {
+            //     phone,
+            //     message: `분양가이드 인증번호 ${authNumber}`,
+            // });
+            // if (res.status == 200) {
+            //     if (!interval) {
+            //         interval = setInterval(() => {
+            //             if (timeLeft > 0) {
+            //                 timeLeft -= 1;
+            //             } else {
+            //                 authNumber = "";
+            //                 authShowBool = false;
+            //                 clearInterval(interval);
+            //                 interval = null;
+            //                 timeLeft = 180;
+            //                 alert("시간이 만료 되었습니다. 다시 시도해주세요.");
+            //             }
+            //         }, 1000);
+            //     }
+            // }
+
+            if (!interval) {
+                interval = setInterval(() => {
+                    if (timeLeft > 0) {
+                        timeLeft -= 1;
+                    } else {
+                        authNumber = "";
+                        authShowBool = false;
+                        clearInterval(interval);
+                        interval = null;
+                        timeLeft = 180;
+                        alert("시간이 만료 되었습니다. 다시 시도해주세요.");
+                    }
+                }, 1000);
             }
         } catch (error) {}
     }
@@ -167,6 +210,10 @@
             alert("아이디를 입력하세요");
             return;
         }
+        if (idStatusErrBool == true) {
+            alert("아이디 형식을 확인 해주세요");
+            return;
+        }
         if (idErrBool == true) {
             alert("중복된 아이디입니다.");
             return;
@@ -201,6 +248,8 @@
             return;
         }
 
+        phone = removeSpecialCharactersAndSpaces(phone);
+
         try {
             const res = await axios.post("/auth/join", {
                 id,
@@ -217,6 +266,18 @@
             console.error(error);
             alert("회원가입 실패 다시 시도해주세요");
         }
+    }
+
+    function formatPhoneNumber(event) {
+        let value = event.target.value.replace(/\D/g, ""); // 숫자만 남기기 (한글, 영어, 특수문자 제거)
+
+        if (value.length > 3 && value.length <= 7) {
+            value = value.replace(/(\d{3})(\d+)/, "$1-$2");
+        } else if (value.length > 7) {
+            value = value.replace(/(\d{3})(\d{4})(\d+)/, "$1-$2-$3");
+        }
+
+        phone = value;
     }
 </script>
 
@@ -257,7 +318,12 @@
                         on:focusout={duplicate_chk}
                     />
                 </label>
-                {#if idErrBool == true}
+                {#if idStatusErrBool == true}
+                    <div class="text-right text-xs text-red-500 mt-1">
+                        아이디 형식이 잘못되었습니다. 영어 / 숫자만 사용
+                        가능합니다.
+                    </div>
+                {:else if idErrBool == true}
                     <div class="text-right text-xs text-red-500 mt-1">
                         아이디가 중복됩니다. 다시 입력해주세요.
                     </div>
@@ -332,6 +398,7 @@
                             placeholder="휴대폰 번호를 입력하세요"
                             disabled={authShowBool || authBool}
                             bind:value={phone}
+                            on:input={formatPhoneNumber}
                         />
                         <!-- disabled -->
                     </label>

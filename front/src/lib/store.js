@@ -1,3 +1,3 @@
 import { writable } from 'svelte/store'
 
-export let user_info = writable({ id: '', name: '' });
+export let user_info = writable({});

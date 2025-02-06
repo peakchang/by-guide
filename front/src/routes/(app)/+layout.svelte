@@ -1,12 +1,23 @@
 <script>
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
+    import { user_info } from "$lib/store.js";
+    import axios from "$node_modules/axios";
+
+    console.log($user_info);
 
     function movePage(e) {
         // console.log(this.getAttribute("linkdata"));
         if ($page.url.pathname != this.getAttribute("linkdata")) {
             goto(this.getAttribute("linkdata"));
         }
+    }
+
+    function logout() {
+        try {
+            const res = axios.post("/auth/logout", { idx: $user_info.idx });
+            $user_info = {};
+        } catch (error) {}
     }
 </script>
 
@@ -19,12 +30,22 @@
             <img src="/logo.png" alt="" class=" max-w-[110px] cursor-pointer" />
         </a>
 
-        <a href="/auth/login">
-            <button class="btn btn-outline btn-success btn-xs">
+        {#if $user_info.idx}
+            <button
+                class="btn btn-outline btn-success btn-xs"
+                on:click={logout}
+            >
                 <i class="fa fa-user-circle" aria-hidden="true"></i>
-                <span>로그인</span>
+                <span>로그아웃</span>
             </button>
-        </a>
+        {:else}
+            <a href="/auth/login">
+                <button class="btn btn-outline btn-success btn-xs">
+                    <i class="fa fa-user-circle" aria-hidden="true"></i>
+                    <span>로그인</span>
+                </button>
+            </a>
+        {/if}
     </div>
 </div>
 <div class="bg-green-50 relative min-h-screen">

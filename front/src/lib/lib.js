@@ -14,7 +14,9 @@ export function isAlphanumeric(str) {
 }
 
 // 특수문자 / 공백 전부 제거
-function removeSpecialCharactersAndSpaces(str) {
+export function removeSpecialCharactersAndSpaces(str) {
     // 정규 표현식: 알파벳, 숫자를 제외한 모든 문자 제거 (공백 포함)
     return str.replace(/[^0-9]/g, '');
-  }
+}
+
+

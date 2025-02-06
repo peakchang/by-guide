@@ -8,8 +8,45 @@
 
     console.log($user_info);
 
+    $effect(() => {
+        loginedChecked();
+    });
+
+    function loginedChecked() {
+        if ($user_info.idx) {
+            alert('이미 로그인 되어 있습니다.')
+            location.href = "/";
+        }
+    }
+
     async function loginSubmit(e) {
         e.preventDefault();
+
+        let errorMessage = "";
+
+        try {
+            const res = await axios.post(`/auth/login`, { id, password });
+            console.log(res);
+
+            if (res.status === 200) {
+                alert("로그인 완료!");
+                location.href = "/";
+            }
+        } catch (error) {
+            console.log(error.response);
+            
+            if (error.response) {
+                // 서버에서 보낸 에러 메시지 추출
+                console.error("Error Response:", error.response);
+                alert(error.response.data.error || "로그인 실패!"); // 에러 메시지 표시
+            } else if (error.request) {
+                console.error("No response received:", error.request);
+                alert("서버로부터 응답이 없습니다.");
+            } else {
+                console.error("Request error:", error.message);
+                alert("요청 중 오류 발생");
+            }
+        }
     }
 
     const kakao_login = () => {
@@ -23,7 +60,9 @@
 </script>
 
 <div class="bg-green-50 relative min-h-screen">
-    <div class="max-w-[530px] mx-auto suit-font pt-12 pb-10 bg-white p-14 min-h-screen">
+    <div
+        class="max-w-[530px] mx-auto suit-font pt-12 pb-10 bg-white p-14 min-h-screen"
+    >
         <div class="text-center bg-white">
             <img src="/logo.png" alt="" class=" max-w-[150px] mx-auto" />
         </div>

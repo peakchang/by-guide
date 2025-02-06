@@ -5,7 +5,11 @@
     import { goto } from "$app/navigation";
     import { user_info } from "$lib/store";
     import { back_api } from "$src/lib/const";
-    import { formatTime, generateRandomNumber } from "$src/lib/lib";
+    import {
+        formatTime,
+        generateRandomNumber,
+        removeSpecialCharactersAndSpaces,
+    } from "$src/lib/lib";
 
     let { data } = $props();
     console.log(data);
@@ -143,7 +147,7 @@
             return;
         }
         userInfo.name = name;
-        userInfo.phone = phone;
+        userInfo.phone = removeSpecialCharactersAndSpaces(phone);
         userInfo.nickname = nickname;
         console.log(userInfo);
 
@@ -205,6 +209,18 @@
                 return false;
             }
         }
+    }
+
+    function formatPhoneNumber(event) {
+        let value = event.target.value.replace(/\D/g, ""); // 숫자만 남기기 (한글, 영어, 특수문자 제거)
+
+        if (value.length > 3 && value.length <= 7) {
+            value = value.replace(/(\d{3})(\d+)/, "$1-$2");
+        } else if (value.length > 7) {
+            value = value.replace(/(\d{3})(\d{4})(\d+)/, "$1-$2-$3");
+        }
+
+        phone = value;
     }
 </script>
 
@@ -288,9 +304,7 @@
                                 class="grow"
                                 placeholder="휴대폰 번호를 입력하세요"
                                 disabled={authShowBool || authBool}
-                                on:input={() => {
-                                    console.log(phone);
-                                }}
+                                on:input={formatPhoneNumber}
                                 bind:value={phone}
                             />
                             <!-- disabled -->
