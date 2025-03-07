@@ -12,7 +12,7 @@
 
 <!-- 상단 고정 -->
 <div class="fixed top-10 left-0 w-full z-40">
-    <div class="max-w-[530px] mx-auto suit-font bg-white p-3">
+    <div class="max-w-[530px] mx-auto pretendard bg-white p-3">
         <ul class="flex justify-between">
             <li class="font-bold text-green-600 cursor-pointer">전국</li>
             <li class="cursor-pointer">서울/경기/인천</li>

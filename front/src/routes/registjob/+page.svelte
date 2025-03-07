@@ -1,11 +1,10 @@
 <script>
     import { goto } from "$app/navigation";
     import QuestionItem from "$src/lib/components/QuestionItem.svelte";
+    import KakaoMap from "$src/lib/components/kakaoMap.svelte";
+    import { browser } from "$app/environment";
 
-    let daehang = $state("");
-    let testifif = $state("");
-
-    let locationList = $derived([
+    let regions = $derived([
         "서울",
         "경기북부",
         "경기남부",
@@ -47,9 +46,184 @@
 
     let feeBases = $derived(["본부", "팀", "직원", "상담시"]);
 
-    let SelFeeBase = $state("");
-    let selLocation = $state("");
+    let subject = $state("");
+    let point = $state("");
+    let addr = $state("");
+    let res_addr = $state("");
+    let location = $state("");
+    let agency = $state("");
+    let name = $state("");
+    let phone = $state("");
+    let business = $state("");
+    let occupation = $state("");
+    let career = $state("");
+    let number_people = $state("");
+    let fee_type = $state("");
+    let fee = $state("");
+    let daily_expense = $state("");
+    let sleep_expense = $state("");
+    let promotion = $state("");
+    let base_pay = $state("");
+
+    // ---------------------------------------------------
+
+    // 주소 입력 창 영역
+    let postWrap = $state();
+
+    // 모달 열고 닫기
+    let modalCloseBtn = $state();
+
+    // KakaoMap 컴포넌트에 전달할 변수
+    let getAddress = $state();
+
+    async function uploadRegist(e) {
+        e.preventDefault();
+        console.log(
+            subject,
+            point,
+            addr,
+            res_addr,
+            location,
+            agency,
+            name,
+            phone,
+            business,
+            occupation,
+            career,
+            number_people,
+            fee_type,
+            fee,
+            daily_expense,
+            sleep_expense,
+            promotion,
+            base_pay,
+        );
+    }
+
+    function foldDaumPostcode() {
+        // iframe을 넣은 element를 안보이게 한다.
+        postWrap.style.display = "none";
+        modalCloseBtn.click();
+    }
+
+    function addressInput() {
+        new daum.Postcode({
+            oncomplete: function (data) {
+                console.log("이곳은 또 몇번째??");
+
+                // 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
+
+                // 각 주소의 노출 규칙에 따라 주소를 조합한다.
+                // 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
+                var addr = ""; // 주소 변수
+                var extraAddr = ""; // 참고항목 변수
+
+                //사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
+                if (data.userSelectedType === "R") {
+                    // 사용자가 도로명 주소를 선택했을 경우
+                    addr = data.roadAddress;
+                } else {
+                    // 사용자가 지번 주소를 선택했을 경우(J)
+                    addr = data.jibunAddress;
+                }
+
+                // 사용자가 선택한 주소가 도로명 타입일때 참고항목을 조합한다.
+                if (data.userSelectedType === "R") {
+                    // 법정동명이 있을 경우 추가한다. (법정리는 제외)
+                    // 법정동의 경우 마지막 문자가 "동/로/가"로 끝난다.
+                    if (data.bname !== "" && /[동|로|가]$/g.test(data.bname)) {
+                        extraAddr += data.bname;
+                    }
+                    // 건물명이 있고, 공동주택일 경우 추가한다.
+                    if (data.buildingName !== "" && data.apartment === "Y") {
+                        extraAddr +=
+                            extraAddr !== ""
+                                ? ", " + data.buildingName
+                                : data.buildingName;
+                    }
+                    // 표시할 참고항목이 있을 경우, 괄호까지 추가한 최종 문자열을 만든다.
+                    if (extraAddr !== "") {
+                        extraAddr = " (" + extraAddr + ")";
+                    }
+                    // 조합된 참고항목을 해당 필드에 넣는다.
+                    // document.getElementById("sample3_extraAddress").value =
+                    //     extraAddr;
+                } else {
+                    // document.getElementById("sample3_extraAddress").value = "";
+                }
+
+                getAddress = addr;
+                console.log(regions);
+                let selRegionIdx = null;
+                for (let i = 0; i < regions.length; i++) {
+                    const region = regions[i];
+                    const regex = new RegExp(`^${region}`);
+                    if (addr.match(regex)) {
+                        selRegionIdx = i; // 매치되면 선택된 지역으로 저장
+                        location = regions[selRegionIdx];
+                        break; // 매치된 경우 더 이상 순회하지 않음
+                    }
+                }
+
+                res_addr = `(${data.zonecode}) ${addr} ${extraAddr}`;
+                // detailAddrArea.focus();
+
+                // iframe을 넣은 element를 안보이게 한다.
+                // (autoClose:false 기능을 이용한다면, 아래 코드를 제거해야 화면에서 사라지지 않는다.)
+                postWrap.style.display = "none";
+                modalCloseBtn.click();
+            },
+            // 우편번호 찾기 화면 크기가 조정되었을때 실행할 코드를 작성하는 부분. iframe을 넣은 element의 높이값을 조정한다.
+            onresize: function (size) {
+                postWrap.style.height = size.height + "px";
+            },
+            width: "100%",
+            height: "100%",
+        }).embed(postWrap);
+
+        console.log("1번째인 이곳은 몇번째?");
+
+        // iframe을 넣은 element를 보이게 한다.
+        postWrap.style.display = "block";
+        my_modal_1.showModal();
+    }
 </script>
+
+<svelte:head>
+    <script
+        src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
+    ></script>
+
+    <script
+        type="text/javascript"
+        defer
+        src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=72689d54e68abd94260d9284c64d7545&libraries=services&autoload=false`}
+    ></script>
+</svelte:head>
+
+<dialog id="my_modal_1" class="modal">
+    <div class="modal-box">
+        <h3 class="text-lg font-bold">주소를 입력하세요</h3>
+        <div
+            bind:this={postWrap}
+            style="display:none;border:1px solid;width:100%;height:300px;margin:5px 0;position:relative"
+        >
+            <img
+                src="//t1.daumcdn.net/postcode/resource/images/close.png"
+                id="btnFoldWrap"
+                style="cursor:pointer;position:absolute;right:0px;top:-1px;z-index:1"
+                on:click={foldDaumPostcode}
+                alt="접기 버튼"
+            />
+        </div>
+        <div class="modal-action">
+            <form method="dialog">
+                <!-- if there is a button in form, it will close the modal -->
+                <button class="btn" bind:this={modalCloseBtn}>Close</button>
+            </form>
+        </div>
+    </div>
+</dialog>
 
 <!-- 숨겨진 헤더!!!!!!!!!!!!!!!!!!!!!! -->
 <div class="fixed top-0 left-0 w-full bg-green-50 z-50 suit-font">
@@ -89,59 +263,88 @@
             구인글 등록
         </div>
 
-        <form action="">
+        <form on:submit={uploadRegist}>
             <div class="mt-2 bg-white p-5">
-                <div class="font-semibold text-lg">공고제목 (현장명)</div>
+                <div class="font-semibold text-lg">공고제목 (현장명)*</div>
                 <div class="mt-1.5">
                     <input
                         type="text"
-                        placeholder="Type here"
+                        placeholder="공고 제목(현장명을 입력하세요)(필수)"
+                        bind:value={subject}
                         class="input input-bordered input-info input-sm w-full"
                     />
                 </div>
 
-                <div class="mt-3 font-semibold text-lg">현장 포인트</div>
+                <div class="mt-3 font-semibold text-lg">현장 포인트*</div>
                 <div class="mt-1.5">
                     <textarea
                         class="textarea textarea-info w-full p-2"
-                        placeholder="Bio"
+                        placeholder="현장 포인트를 입력해주세요(필수)"
+                        bind:value={point}
                     ></textarea>
                 </div>
 
-                <div class="mt-3 font-semibold text-lg">근무지</div>
+                <div class="mt-3 font-semibold text-lg">근무지*</div>
+
                 <div class="mt-1.5 flex w-full items-center gap-1">
-                    <div
-                        class="border w-full py-1.5 px-2 text-sm border-sky-400 rounded-md"
+                    {#if res_addr}
+                        <div
+                            class="border w-full py-1.5 px-2 text-sm border-sky-400 rounded-md"
+                        >
+                            {res_addr}
+                        </div>
+                    {:else}
+                        <div
+                            class="border w-full py-1.5 px-2 text-sm border-sky-400 rounded-md text-gray-400"
+                        >
+                            주소 입력을 클릭해 주소를 입력해주세요
+                        </div>
+                    {/if}
+
+                    <button
+                        class="btn btn-outline btn-info btn-sm"
+                        on:click={addressInput}
                     >
-                        근무지 주소를 입력하세요
-                    </div>
-                    <button class="btn btn-outline btn-info btn-sm">
                         <span>주소 입력</span>
                     </button>
                 </div>
 
-                <div
-                    class="mt-2 h-40 border w-full text-sm border-sky-400 rounded-md overflow-hidden"
-                >
+                <!-- <div class="my-2">
+                    <input
+                        type="text"
+                        bind:value={detailAddr}
+                        bind:this={detailAddrArea}
+                        placeholder="상세 주소를 입력하세요"
+                        class="border w-full py-1.5 px-2 text-sm border-sky-400 rounded-md focus:outline-none focus:border-2"
+                    />
+                </div> -->
+
+                {#if getAddress}
                     <div
-                        class=" bg-gray-300 w-full h-full flex justify-center items-center text-2xl"
+                        class="mt-2 h-72 border w-full text-sm border-sky-400 rounded-md overflow-hidden"
                     >
-                        지도 표시 영역
+                        <KakaoMap {getAddress} phText="근무지" height="300px" />
                     </div>
-                </div>
+                {:else}
+                    <div
+                        class="mt-2 h-24 border border-sky-400 rounded-md flex justify-center items-center bg-gray-200"
+                    >
+                        <div class="">주소를 입력하면 지도가 표시됩니다.</div>
+                    </div>
+                {/if}
 
                 <div class="mt-5">
-                    <div class="mt-3 font-semibold text-lg">지역선택</div>
+                    <div class="mt-3 font-semibold text-lg">지역선택*</div>
                     <div class="mt-3 grid grid-cols-2 gap-1">
-                        {#each locationList as location, idx}
+                        {#each regions as region, idx}
                             <label class="button-checkbox">
                                 <input
                                     type="radio"
                                     hidden
-                                    value={location}
-                                    bind:group={selLocation}
+                                    value={region}
+                                    bind:group={location}
                                 />
-                                <div>{location}</div>
+                                <div>{region}</div>
                             </label>
                         {/each}
                     </div>
@@ -154,15 +357,19 @@
                 <QuestionItem
                     sbj="분양대행사 *"
                     placeholder="필수입력"
-                    bind:iptVal={daehang}
+                    bind:iptVal={agency}
                 />
                 <QuestionItem
                     sbj="담당자 성함 *"
                     placeholder="필수입력"
-                    bind:iptVal={testifif}
+                    bind:iptVal={name}
                 />
 
-                <QuestionItem sbj="담당자 연락처 *" placeholder="필수입력" />
+                <QuestionItem
+                    sbj="담당자 연락처 *"
+                    placeholder="필수입력"
+                    bind:iptVal={phone}
+                />
 
                 <div class="mt-5">
                     <div class="pl-3 text-left text-sm">
@@ -172,7 +379,12 @@
                     <div class="mt-3 grid grid-cols-2 gap-1">
                         {#each businessCategorys as businessCategory, idx}
                             <label class="button-checkbox">
-                                <input type="checkbox" hidden />
+                                <input
+                                    type="checkbox"
+                                    value={businessCategory}
+                                    bind:group={business}
+                                    hidden
+                                />
                                 <div>{businessCategory}</div>
                             </label>
                         {/each}
@@ -187,16 +399,29 @@
                     <div class="mt-3 grid grid-cols-2 gap-1">
                         {#each jobCategorys as jobCategory, idx}
                             <label class="button-checkbox">
-                                <input type="checkbox" hidden />
+                                <input
+                                    type="checkbox"
+                                    value={jobCategory}
+                                    bind:group={occupation}
+                                    hidden
+                                />
                                 <div>{jobCategory}</div>
                             </label>
                         {/each}
                     </div>
                 </div>
 
-                <QuestionItem sbj="경력 *" placeholder="ex) 10년 / 초보" />
+                <QuestionItem
+                    sbj="경력 *"
+                    placeholder="ex) 10년 / 초보"
+                    bind:iptVal={career}
+                />
 
-                <QuestionItem sbj="인원 *" placeholder="ex) 2명 / 00명" />
+                <QuestionItem
+                    sbj="인원 *"
+                    placeholder="ex) 2명 / 00명"
+                    bind:iptVal={number_people}
+                />
             </div>
 
             <div class="mt-2 bg-white p-5">
@@ -212,19 +437,19 @@
                                         type="radio"
                                         value={feeBase}
                                         hidden
-                                        bind:group={SelFeeBase}
+                                        bind:group={fee_type}
                                     />
                                     <div class="">{feeBase}</div>
                                 </label>
                             {/each}
                         </div>
                     </div>
-                    
 
                     <div class="flex justify-end items-center gap-3 mt-2">
                         <div class="w-4/5 flex items-center gap-3">
                             <input
                                 type="text"
+                                bind:value={fee}
                                 placeholder="숫자만 입력해주세요"
                                 class="input input-bordered input-info input-sm w-full"
                             />
@@ -233,28 +458,35 @@
                     </div>
 
                     <div class="text-xs text-right mt-1 text-green-700">
-                        <p>수수료는 구인글 메인에 노출됩니다. 정확하게 입력해주시면</p>
+                        <p>
+                            수수료는 구인글 메인에 노출됩니다. 정확하게
+                            입력해주시면
+                        </p>
                         <p>더 많은 사람들이 회원님의 공고를 확인하게 됩니다.</p>
                     </div>
                 </div>
                 <QuestionItem
                     sbj="일비"
                     placeholder="있을 경우만 입력 (ex, 월 100만원 / 일 3만원)"
+                    bind:iptVal={daily_expense}
                 />
 
                 <QuestionItem
                     sbj="숙소비"
                     placeholder="있을 경우만 입력 (ex, 원룸 제공)"
+                    bind:iptVal={sleep_expense}
                 />
 
                 <QuestionItem
                     sbj="프로모션"
                     placeholder="있을 경우만 입력 (ex, 5채 판매시 추가 100만)"
+                    bind:iptVal={promotion}
                 />
 
                 <QuestionItem
                     sbj="기본급여"
                     placeholder="있을 경우만 입력 (ex, 5채 판매시 추가 100만)"
+                    bind:iptVal={base_pay}
                 />
             </div>
 
@@ -269,9 +501,9 @@
                 </div>
 
                 <div class="mt-1.5">
-                    <button class="btn btn-success w-full text-white"
-                        >등록하기</button
-                    >
+                    <button class="btn btn-success w-full text-white">
+                        등록하기
+                    </button>
                 </div>
             </div>
         </form>

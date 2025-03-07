@@ -21,7 +21,7 @@
     }
 </script>
 
-<div class="fixed left-0 top-0 w-full suit-font z-40 h-10">
+<div class="fixed left-0 top-0 w-full pretendard z-40 h-10">
     <div class="max-w-[530px] mx-auto bg-white px-3 py-2 flex justify-between">
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->

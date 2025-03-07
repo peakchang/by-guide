@@ -9,7 +9,10 @@ import qs from "qs";
 const apiRouter = express.Router();
 
 const storage = multer.diskStorage({
-    destination: "temp/", // 임시 저장 경로
+    destination(req, file, cb) {
+        const setFolder = imgFolderChk();
+        cb(null, setFolder);
+    },
     filename(req, file, cb) {
         cb(null, file.originalname); // 원본 파일명을 사용
     },
@@ -19,6 +22,32 @@ const img_upload = multer({ storage });
 
 apiRouter.get('/', (req, res) => {
     res.send('asldfjalisjdfliajsdf')
+})
+
+apiRouter.post('/upload_img', img_upload.single('onimg'), (req, res, next) => {
+    console.log('여긴 문제 없었는데?');
+    let status = true;
+    let baseUrl
+    let saveUrl
+
+    console.log(req.file);
+
+
+    try {
+        const lastFolderArr = req.file.destination.split('/');
+        const lastFolder = lastFolderArr[lastFolderArr.length - 1];
+        var origin = req.get('host');
+        baseUrl = req.protocol + '://' + origin + '/' + 'img' + '/' + lastFolder + '/' + req.file.filename;
+        saveUrl = req.file.path
+        console.log(baseUrl);
+        console.log(saveUrl);
+        console.log(req.file.filename);
+
+    } catch (error) {
+        status = false;
+    }
+
+    res.json({ status, baseUrl, saveUrl })
 })
 
 
@@ -142,11 +171,11 @@ function imgFolderChk(folderName) {
     }
 
     try {
-        fs.readdirSync(`public/uploads/image/${folderName}`);
+        fs.readdirSync(`public/uploads/image/${now}`);
     } catch (error) {
-        fs.mkdirSync(`public/uploads/image/${folderName}`);
+        fs.mkdirSync(`public/uploads/image/${now}`);
     }
-    setFolder = `public/uploads/image/${folderName}`
+    setFolder = `public/uploads/image/${now}`
 
 
     return setFolder;
