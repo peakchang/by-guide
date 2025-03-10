@@ -4,7 +4,7 @@
     import axios from "axios";
     import { back_api } from "$src/lib/const";
 
-    let { updateImg, maxImgCount = 999999 } = $props();
+    let { updateImg, imgModifyList = [], maxImgCount = 999999 } = $props();
     let imgArr = $state([]);
 
     function addVal(getHerf) {
@@ -20,6 +20,12 @@
     }
 
     let sortable = $state(null);
+
+    async function deleteImg() {
+        console.log(this.value);
+        console.log(imgArr);
+        imgArr.splice(this.value, 1);
+    }
 
     const onFileSelected = (e) => {
         if (imgArr.length >= maxImgCount) {
@@ -144,19 +150,20 @@
     }
 </script>
 
-<button
-    on:click={() => {
-        addVal("🥝키위");
-    }}
->
-    추가하기
-</button>
 <div class="hidden opacity-0"></div>
 <ul class="flex flex-wrap" bind:this={sortable}>
-    {#each imgArr as img (img)}
+    {#each imgArr as img, idx (img)}
         <li
-            class="m-2 flex w-28 h-28 items-center justify-center gap-3 border-2 my-handle rounded-lg overflow-hidden"
+            class="m-2 flex w-24 h-24 items-center justify-center gap-1 border-2 my-handle rounded-lg overflow-hidden relative"
         >
+            <button
+                class=" absolute top-0 right-0"
+                value={idx}
+                on:click={deleteImg}
+            >
+                <i class="fa fa-times-circle-o" aria-hidden="true"></i>
+            </button>
+
             <img src={img.href} alt="" />
         </li>
     {/each}

@@ -1,6 +1,7 @@
 <script>
     import { goto } from "$app/navigation";
     import QuestionItem from "$src/lib/components/QuestionItem.svelte";
+    import SortableImg from "$src/lib/components/SortableImg.svelte";
     import KakaoMap from "$src/lib/components/kakaoMap.svelte";
     import { browser } from "$app/environment";
 
@@ -258,13 +259,20 @@
 </div>
 
 <div class="bg-green-50 relative min-h-screen">
-    <div class="max-w-[530px] mx-auto suit-font pt-12 pb-24">
+    <div class="max-w-[530px] mx-auto pretendard pt-12 pb-24">
         <div class="text-center font-semibold text-xl bg-white p-3">
             구인글 등록
         </div>
 
         <form on:submit={uploadRegist}>
             <div class="mt-2 bg-white p-5">
+                <div class="font-semibold text-lg">이미지 등록 *</div>
+                <div class="text-xs">이미지는 최대 10장, 슬라이드 형태로 표시됩니다.</div>
+                <div class="my-3">
+
+                    <SortableImg></SortableImg>
+                </div>
+
                 <div class="font-semibold text-lg">공고제목 (현장명)*</div>
                 <div class="mt-1.5">
                     <input
