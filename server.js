@@ -13,6 +13,9 @@ import { handler } from "./front/build/handler.js"
 import { mainRouter } from './routes/main.js';
 import { apiRouter } from "./routes/api.js"
 
+import { siteRouter } from './routes/site.js';
+import { personRouter } from './routes/person.js';
+
 
 // import { apiRouter } from "./routes/exapi.js"
 app.use(cookieParser());
@@ -57,7 +60,8 @@ app.enable('trust proxy');
 
 app.use('/api/v3', apiRouter);
 app.use('/api/v3/main', mainRouter);
-
+app.use('/api/v3/site', siteRouter);
+app.use('/api/v3/person', personRouter);
 
 
 app.use('/chk', (req, res) => {

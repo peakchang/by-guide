@@ -15,8 +15,9 @@ export const sql_con = mysql.createConnection({
 
 CREATE DATABASE byguide default CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS users(
+CREATE TABLE IF NOT EXISTS site(
     idx INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id VARCHAR(10) NOT NULL,
     imgs TEXT NOT NULL,
     subject VARCHAR(255) NOT NULL,
     point TEXT,

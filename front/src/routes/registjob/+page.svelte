@@ -3,7 +3,10 @@
     import QuestionItem from "$src/lib/components/QuestionItem.svelte";
     import SortableImg from "$src/lib/components/SortableImg.svelte";
     import KakaoMap from "$src/lib/components/kakaoMap.svelte";
+    import { user_info } from "$lib/store.js";
     import { browser } from "$app/environment";
+    import axios from "$node_modules/axios";
+    import { back_api } from "$src/lib/const";
 
     let regions = $derived([
         "서울",
@@ -47,6 +50,7 @@
 
     let feeBases = $derived(["본부", "팀", "직원", "상담시"]);
 
+    let imgs = $state("");
     let subject = $state("");
     let point = $state("");
     let addr = $state("");
@@ -55,7 +59,9 @@
     let agency = $state("");
     let name = $state("");
     let phone = $state("");
+    let businessArr = $state([]);
     let business = $state("");
+    let occupationArr = $state([]);
     let occupation = $state("");
     let career = $state("");
     let number_people = $state("");
@@ -68,6 +74,14 @@
 
     // ---------------------------------------------------
 
+    $effect(() => {
+        if (!$user_info.idx) {
+            alert("로그인 후 이용 가능합니다.");
+            goto("/");
+            return;
+        }
+    });
+
     // 주소 입력 창 영역
     let postWrap = $state();
 
@@ -77,28 +91,95 @@
     // KakaoMap 컴포넌트에 전달할 변수
     let getAddress = $state();
 
+    function chkEssentialValue(objArr) {
+        for (let i = 0; i < objArr.length; i++) {
+            const e = objArr[i];
+            if (!e.var) {
+                alert(`${e.label}(은)는 필수 입력입니다.`);
+                return false;
+            }
+        }
+        return true;
+    }
+
     async function uploadRegist(e) {
         e.preventDefault();
-        console.log(
-            subject,
-            point,
-            addr,
-            res_addr,
-            location,
-            agency,
-            name,
-            phone,
-            business,
-            occupation,
-            career,
-            number_people,
-            fee_type,
-            fee,
-            daily_expense,
-            sleep_expense,
-            promotion,
-            base_pay,
-        );
+
+        console.log(business);
+
+        business = businessArr.join(",");
+        occupation = occupationArr.join(",");
+
+        const chkBool = chkEssentialValue([
+            // { var: imgs, label: "현장 이미지" },
+            { var: subject, label: "공고 제목(현장명)" },
+            { var: point, label: "현장 포인트" },
+            { var: addr, label: "근무지 주소" },
+            { var: location, label: "지역 선택" },
+            { var: agency, label: "분양대행사명" },
+            { var: name, label: "담당자 성함" },
+            { var: phone, label: "담당자 연락처" },
+            { var: business, label: "업종분류선택" },
+            { var: occupation, label: "직종분류선택" },
+            { var: career, label: "경력 입력" },
+            { var: number_people, label: "인원 입력" },
+            { var: fee_type, label: "수수료 타입" },
+            { var: fee, label: "수수료 입력" },
+        ]);
+
+        console.log(chkBool);
+
+        if (!chkBool) {
+            return;
+        }
+
+        try {
+            const res = await axios.post(`${back_api}/site/upload_content`, {
+                user_id: $user_info.idx,
+                imgs,
+                subject,
+                point,
+                addr,
+                res_addr,
+                location,
+                agency,
+                name,
+                phone,
+                business,
+                occupation,
+                career,
+                number_people,
+                fee_type,
+                fee,
+                daily_expense,
+                sleep_expense,
+                promotion,
+                base_pay,
+            });
+
+            console.log(res);
+
+            if (res.status == 200) {
+                alert("등록이 완료 되었습니다.");
+                goto(`/`);
+            } else {
+                alert("에러가 발생했습니다. 다시 시도해주세요.");
+            }
+        } catch (err) {
+            console.error(err.message);
+        }
+
+        console.log();
+    }
+
+    function updateImg(e) {
+        let imgStr = "";
+        for (let i = 0; i < e.length; i++) {
+            const con = e[i];
+            console.log(con.href);
+            imgStr += con.href + ",";
+        }
+        imgs = imgStr.slice(0, -1);
     }
 
     function foldDaumPostcode() {
@@ -116,7 +197,6 @@
 
                 // 각 주소의 노출 규칙에 따라 주소를 조합한다.
                 // 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
-                var addr = ""; // 주소 변수
                 var extraAddr = ""; // 참고항목 변수
 
                 //사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
@@ -209,6 +289,9 @@
             bind:this={postWrap}
             style="display:none;border:1px solid;width:100%;height:300px;margin:5px 0;position:relative"
         >
+            <!-- svelte-ignore a11y_click_events_have_key_events -->
+            <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+            <!-- svelte-ignore event_directive_deprecated -->
             <img
                 src="//t1.daumcdn.net/postcode/resource/images/close.png"
                 id="btnFoldWrap"
@@ -264,13 +347,15 @@
             구인글 등록
         </div>
 
+        <!-- svelte-ignore event_directive_deprecated -->
         <form on:submit={uploadRegist}>
             <div class="mt-2 bg-white p-5">
                 <div class="font-semibold text-lg">이미지 등록 *</div>
-                <div class="text-xs">이미지는 최대 10장, 슬라이드 형태로 표시됩니다.</div>
+                <div class="text-xs">
+                    이미지는 최대 10장, 슬라이드 형태로 표시됩니다.
+                </div>
                 <div class="my-3">
-
-                    <SortableImg></SortableImg>
+                    <SortableImg {updateImg} maxImgCount={10}></SortableImg>
                 </div>
 
                 <div class="font-semibold text-lg">공고제목 (현장명)*</div>
@@ -311,6 +396,7 @@
 
                     <button
                         class="btn btn-outline btn-info btn-sm"
+                        type="button"
                         on:click={addressInput}
                     >
                         <span>주소 입력</span>
@@ -390,7 +476,7 @@
                                 <input
                                     type="checkbox"
                                     value={businessCategory}
-                                    bind:group={business}
+                                    bind:group={businessArr}
                                     hidden
                                 />
                                 <div>{businessCategory}</div>
@@ -410,7 +496,7 @@
                                 <input
                                     type="checkbox"
                                     value={jobCategory}
-                                    bind:group={occupation}
+                                    bind:group={occupationArr}
                                     hidden
                                 />
                                 <div>{jobCategory}</div>

@@ -4,8 +4,15 @@
     import axios from "axios";
     import { back_api } from "$src/lib/const";
 
-    let { updateImg, imgModifyList = [], maxImgCount = 999999 } = $props();
+    let {
+        updateImg,
+        imgModifyList = [],
+        maxImgCount = 999999,
+        detailShow = true,
+    } = $props();
     let imgArr = $state([]);
+    let sortable = $state(null);
+    let setDetailImgCount = $state(0);
 
     function addVal(getHerf) {
         const newId =
@@ -19,11 +26,27 @@
         imgArr = [...imgArr, newObj];
     }
 
-    let sortable = $state(null);
-
     async function deleteImg() {
-        console.log(this.value);
-        console.log(imgArr);
+        if (imgArr.length - 1 == setDetailImgCount) {
+            setDetailImgCount = setDetailImgCount - 1;
+        }
+        const delTarget = imgArr[this.value];
+        console.log(delTarget);
+
+        const delTargetArr = delTarget.href.split("/");
+
+        const delFolder = delTargetArr[delTargetArr.length - 2];
+        const delFile = delTargetArr[delTargetArr.length - 1];
+        console.log(delFolder);
+        console.log(delFile);
+
+        try {
+            const res = await axios.post(`${back_api}/delete_sort_img`, {
+                delFolder,
+                delFile,
+            });
+        } catch (error) {}
+
         imgArr.splice(this.value, 1);
     }
 
@@ -79,11 +102,15 @@
 
                 let res = {};
                 try {
-                    res = await axios.post(`${back_api}/upload_img`, imgForm, {
-                        headers: {
-                            "Content-Type": "multipart/form-data",
+                    res = await axios.post(
+                        `${back_api}/upload_sort_img`,
+                        imgForm,
+                        {
+                            headers: {
+                                "Content-Type": "multipart/form-data",
+                            },
                         },
-                    });
+                    );
                 } catch (error) {
                     console.error("Error during image upload:", error.message);
                     alert("이미지 업로드 오류! 다시 시도해주세요!");
@@ -94,6 +121,8 @@
 
                 if (res.status == 200) {
                     addVal(res.data.baseUrl);
+                    setDetailImgCount = imgArr.length - 1;
+                    updateImg(imgArr);
                 }
             } catch (error) {
                 console.error("Error during image compression:", error);
@@ -109,8 +138,11 @@
         handle: ".my-handle",
         ghostClass: "opacity-0",
         onEnd(evt) {
+            console.log("*******************************");
+            console.log(evt);
+
             imgArr = reorder(imgArr, evt);
-            console.log(imgArr);
+            updateImg(imgArr);
         },
     });
 
@@ -148,16 +180,30 @@
         workArray[newIndex] = target;
         return workArray;
     }
+
+    // function handleLiClick(event) {
+    //     const liElement = event.currentTarget;
+    //     setDetailImgCount = Number(liElement.getAttribute("data-idx"));
+    // }
 </script>
 
 <div class="hidden opacity-0"></div>
+<!-- {#if detailShow && imgArr.length > 0}
+    <div>
+        <img src={imgArr[setDetailImgCount]["href"]} alt="" />
+    </div>
+{/if} -->
 <ul class="flex flex-wrap" bind:this={sortable}>
     {#each imgArr as img, idx (img)}
+        <!-- svelte-ignore a11y_consider_explicit_label -->
+        <!-- svelte-ignore event_directive_deprecated -->
         <li
             class="m-2 flex w-24 h-24 items-center justify-center gap-1 border-2 my-handle rounded-lg overflow-hidden relative"
+            data-idx={idx}
         >
             <button
                 class=" absolute top-0 right-0"
+                type="button"
                 value={idx}
                 on:click={deleteImg}
             >
@@ -169,8 +215,10 @@
     {/each}
 </ul>
 
+<!-- svelte-ignore event_directive_deprecated -->
 <button
     class="btn btn-info btn-sm text-white pretendard"
+    type="button"
     on:click={onFileSelected}
 >
     이미지 추가하기
