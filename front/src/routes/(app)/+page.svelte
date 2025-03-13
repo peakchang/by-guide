@@ -6,7 +6,7 @@
     ]);
 
     function goToDetail() {
-        goto(`/sitedetail/gogo`);
+        goto(`/sitedetail/1`);
     }
 </script>
 

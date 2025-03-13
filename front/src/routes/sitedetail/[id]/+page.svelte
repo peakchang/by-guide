@@ -2,6 +2,11 @@
     import { goto } from "$app/navigation";
     let y = $state(0);
     let showBool = $state(false);
+    let { data } = $props();
+
+    console.log(data);
+    const viewDetail = data.view_detail;
+    console.log(viewDetail);
 
     $effect(() => {
         console.log(y);
@@ -11,6 +16,10 @@
             showBool = false;
         }
     });
+
+    function contactCall() {}
+
+    function contactSms() {}
 </script>
 
 <svelte:window bind:scrollY={y} />
@@ -151,16 +160,15 @@
 </div>
 
 <div class="mt-3 p-3 bg-white rounded-lg">
-    <div class="font-bold text-xl text-center">지젤라이프그라피서초</div>
+    <div class="font-bold text-xl text-center">{viewDetail.subject}</div>
     <div class="mt-3">
         <div>
-            <span class="font-bold">현장 포인트&nbsp;:&nbsp;</span> Lorem ipsum dolor
-            sit amet consectetur, adipisicing elit. Saepe fuga architecto sed illo
-            possimus voluptatibus reprehenderit deleniti iure quis. Exercitationem
-            quisquam commodi placeat impedit voluptatum at rerum et totam numquam?
+            <span class="font-bold">현장 포인트&nbsp;:&nbsp;</span>
+            {viewDetail.point}
         </div>
         <div class="mt-3">
-            <span class="font-bold">전화번호&nbsp;:&nbsp;</span>010-2323-8745
+            <span class="font-bold"> 전화번호&nbsp;:&nbsp;</span>
+            {viewDetail.phone}
         </div>
         <div class="flex items-center gap-0.5 mt-5 text-sm">
             <svg
@@ -176,11 +184,17 @@
         </div>
 
         <div class="mt-4">
-            <button class="btn btn-info btn-sm text-white">
+            <button
+                class="btn btn-info btn-sm text-white"
+                on:click={contactCall}
+            >
                 <i class="fa fa-phone" aria-hidden="true"></i>
                 전화하기
             </button>
-            <button class="btn btn-success btn-sm text-white">
+            <button
+                class="btn btn-success btn-sm text-white"
+                on:click={contactSms}
+            >
                 <i class="fa fa-envelope-o" aria-hidden="true"></i>
                 문자하기
             </button>
@@ -196,10 +210,10 @@
 
     <div class="my-3 font-semibold">기본정보</div>
     <div class="text-sm leading-relaxed">
-        <p>대행사 : blabla~~~~~~~~~~~~</p>
-        <p>모집 업종 : 아파트 / 오피스텔 / 지산</p>
-        <p>모집 직종 : 팀장 / 직원</p>
-        <p>경력 : blabla~~~~~~~~~~~~~~~~~~~</p>
+        <p>대행사 : {viewDetail.agency}</p>
+        <p>모집 업종 : {viewDetail.business.replace(",", " / ")}</p>
+        <p>모집 직종 : {viewDetail.occupation.replace(",", " / ")}</p>
+        <p>경력 : {viewDetail.career}</p>
     </div>
 
     <div class="my-3 font-semibold">급여 및 영업지원 정보</div>
