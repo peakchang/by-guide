@@ -134,6 +134,8 @@
             return;
         }
         authShowBool = true;
+        console.log(authShowBool);
+        
         authNumber = generateRandomNumber();
 
         try {
