@@ -10,8 +10,8 @@
         console.log(this.getAttribute("linkdata"));
 
         if (this.getAttribute("linkdata") == "/my" && !$user_info.idx) {
-            alert("로그인 후 이용 가능합니다.");
-            return;
+            // alert("로그인 후 이용 가능합니다.");
+            // return;
         }
         if ($page.url.pathname != this.getAttribute("linkdata")) {
             goto(this.getAttribute("linkdata"));
@@ -67,11 +67,12 @@
                 <button
                     class="py-1.5 px-4 bg-blue-500 text-white rounded-full"
                     on:click={() => {
-                        if ($user_info.idx) {
-                            goto("/registjob");
-                        } else {
-                            alert("로그인 후 이용 가능 합니다.");
-                        }
+                        goto("/registjob");
+                        // if ($user_info.idx) {
+                        //     goto("/registjob");
+                        // } else {
+                        //     alert("로그인 후 이용 가능 합니다.");
+                        // }
                     }}
                 >
                     <i class="fa fa-plus" aria-hidden="true"></i>
